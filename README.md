@@ -24,19 +24,83 @@ This Bash script helps system administrators detect and suspend email accounts o
 
 ## 📁 Script Overview
 
-### Files Generated
+This script is designed to automatically suspend email accounts that are detected as sending spam or exceeding email sending limits on a cPanel server. Here's a breakdown of its functionality:
 
-| File                                       | Description                                           |
-| ------------------------------------------ | ----------------------------------------------------- |
-| `topsender_hour.txt`                       | Users sending >200 emails in last 30 mins             |
-| `topsender_6hour.txt`                      | Users sending >800 emails in last 5 hours             |
-| `top_mailnull`                             | Recipients via `mailnull` user exceeding 30/200 mails |
-| `defer.txt`                                | Domains triggering defers/failures per hour           |
-| `hourly_lmit.txt`                          | Users exceeding cPanel hourly mail limit              |
-| `emailreport.txt`, `emailreport1.txt`      | Custom email reports (reserved)                       |
-| `spamassasin.txt`, `top_sender_reject.txt` | Placeholder for future integration                    |
+## Main Purpose
+The script monitors Exim mail logs for signs of spam activity and automatically takes action against offending accounts by:
+- Suspending outgoing mail capabilities
+- Creating suspension logs
+- Managing forwarders for suspended accounts
+- Maintaining whitelists and caches
 
----
+## Key Components
+
+### 1. Initial Setup
+- Creates necessary directories and files if they don't exist (`/var/log/spamsuspend`, `/pickascript/spam_whitelist`, etc.)
+- Sets up date and hostname variables
+
+### 2. Helper Functions
+
+#### `contactemail()`
+- Retrieves the contact email address for a given account by checking cPanel user files
+- Handles both root-owned and non-root-owned accounts
+
+#### `toaddfilter()`
+- Main function that processes accounts to be suspended
+- Handles different suspension reasons with corresponding messages
+- Manages forwarders for suspended accounts
+- Updates various cache and log files
+
+#### `suspendinfo()`
+- Gathers suspension information from Exim logs
+- Creates suspension details in user directories
+- Cleans up mail queue for suspended accounts
+
+### 3. Log Analysis
+The script analyzes Exim mail logs for various spam indicators:
+- Outgoing mail suspensions
+- Rejected messages after DATA
+- Non-SMTP ACL rejections
+- Exceeded email limits
+- Spam bounces from major providers (Yahoo, Google)
+- Various spam content indicators
+
+### 4. Processing Flow
+1. Parses recent Exim logs for spam indicators
+2. Filters out whitelisted accounts and recently processed accounts
+3. For each offending account:
+   - Determines the account owner
+   - Suspends the account if criteria are met
+   - Logs the suspension
+   - Cleans up mail queue
+   - Optionally modifies forwarders
+4. Maintains cache files to prevent duplicate processing
+
+## Suspension Reasons
+The script handles multiple types of spam indicators with corresponding reason codes:
+- `a`: Has an outgoing mail suspension
+- `c`: SpamAssassin found high spam score
+- `e`: Reached maximum deferred limit
+- `f`: Domain reached email hourly limit
+- `g`: Message looks like spam (Google detection)
+- `h`: Content presents security issue
+- `i`: Yahoo policy rejection
+- `j`: General spam content
+- `k`: User complaints (Yahoo deferral)
+
+## Technical Details
+- Uses Exim log parsing with `grep`, `awk`, and other text processing tools
+- Interfaces with cPanel through `/scripts/whoowns` and `cpapi2`
+- Maintains state through various cache files in `/pickascript/`
+- Logs all actions to `/var/log/spamsuspend/sa_suspended.log`
+
+## Safety Mechanisms
+- Whitelist support (`/pickascript/spam_whitelist`)
+- Hourly cache to prevent duplicate suspensions
+- Special handling for cPanel system emails
+- Root account protection
+
+--
 
 ## 🛠️ How It Works
 
