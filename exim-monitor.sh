@@ -74,6 +74,18 @@ fwdmsg=""
 fi
 
 
+reason_a='Suspended has an outgoing mail suspension'
+reason_k='Spamming emails deferred due to user complaints'
+reason_c='SA found spam score greater than 7'
+reason_d=' SA found spam score greater than 7'
+reason_e='reached maximum deffered limit'
+reason_f='domain reached emaiil hourly limit'
+reason_g='message looks like SPAM or has been reported as SPAM by google'
+reason_h='blocked because its content presents a potential security issue'
+reason_i='Message not accepted for policy yahoo reasons'
+reason_j='Your message looks like SPAM or has been reported as SPAM'
+reason_k='Gmail has detected that this message is likely'
+reason=`echo ${!reason_t}`
 
 if [ $fwdmsgt -eq 1 ] ; then
 
