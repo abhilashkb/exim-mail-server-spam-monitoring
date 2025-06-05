@@ -1,7 +1,3 @@
-Here’s a well-structured `README.md` file for your Bash script, suitable for publishing on GitHub:
-
----
-
 # 📧 Email Account Auto-Suspension Script for Spamming Detection (Exim + cPanel)
 
 This Bash script helps system administrators detect and suspend email accounts on a **cPanel server using Exim** that are potentially sending spam. It uses **bounce-back messages and log analysis** to identify accounts exceeding defined thresholds and integrates with a **custom Exim system filter** to block outgoing mail from those users.
